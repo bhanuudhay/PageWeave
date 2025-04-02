@@ -16,7 +16,7 @@ function App() {
     setError(null);
 
     try {
-      const response = await axios.post("http://localhost:5000/summarize", {
+      const response = await axios.post("https://pageweave.onrender.com/summarize", {
         book,
         author,
       });
