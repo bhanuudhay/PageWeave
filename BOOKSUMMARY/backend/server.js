@@ -13,14 +13,14 @@ const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
 
 app.post("/api/summarize", async (req, res) => {
   try {
-    const { book, author } = req.body;
+    const { bookName, authorName } = req.body;
 
-    const prompt = Summarize the book '${bookName}' by ${authorName} in a detailed yet simple manner. Explain the main plot, key themes, important characters, and major takeaways in easy-to-understand language. Keep the summary engaging and structured so that anyone can grasp the book's essence without prior knowledge.;
+    
+    const prompt = `Summarize the book '${bookName}' by ${authorName} in a detailed yet simple manner. Explain the main plot, key themes, important characters, and major takeaways in easy-to-understand language. Keep the summary engaging and structured so that anyone can grasp the book's essence without prior knowledge.`;
 
     const model = genAI.getGenerativeModel({ model: "gemini-pro" });
     const result = await model.generateContent(prompt);
-    const response = await result.response;
-    const text = response.text();
+    const text = result.response.text(); // Ensure this is correct
 
     res.json({ summary: text });
   } catch (error) {
@@ -30,5 +30,5 @@ app.post("/api/summarize", async (req, res) => {
 });
 
 app.listen(port, () => {
-  console.log(Server is running on port ${port});
+  console.log(`Server is running on port ${port}`);
 });
