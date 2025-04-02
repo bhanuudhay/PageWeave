@@ -1,34 +1,56 @@
+require("dotenv").config();
 const express = require("express");
 const cors = require("cors");
-const { GoogleGenerativeAI } = require("@google/generative-ai");
-require("dotenv").config();
+const axios = require("axios");
 
 const app = express();
-const port = process.env.PORT || 5000;
-
-app.use(cors({ origin: "*" })); // Allow all origins
 app.use(express.json());
+app.use(cors());
 
-const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
+const GEMINI_API_URL =
+  "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent";
+const API_KEY = process.env.GEMINI_API_KEY;
 
-app.post("/api/summarize", async (req, res) => {
+// Route to summarize a book with a longer summary
+app.post("/summarize", async (req, res) => {
+  const { book, author } = req.body;
+
+  if (!book || !author) {
+    return res
+      .status(400)
+      .json({ error: "Book title and author are required" });
+  }
+
+  const prompt = `
+  Write a detailed summary of the book "${book}" by ${author}. 
+  - The summary should be **10-20 pages long** and written in **simple, easy-to-understand language**.
+  - Break the summary into **sections or chapters** with proper headings.
+  - Use a **storytelling approach** while explaining the book.
+  - Capture the **main themes, characters, and important events**.
+  - Avoid unnecessary details and focus on the core message.
+  - Present the information in a way that a general audience can grasp without prior knowledge of the book.
+  `;
+
   try {
-    const { bookName, authorName } = req.body;
+    const response = await axios.post(
+      `${GEMINI_API_URL}?key=${API_KEY}`,
+      {
+        contents: [{ parts: [{ text: prompt }] }],
+      },
+      { headers: { "Content-Type": "application/json" } }
+    );
 
-    
-    const prompt = `Summarize the book '${bookName}' by ${authorName} in a detailed yet simple manner. Explain the main plot, key themes, important characters, and major takeaways in easy-to-understand language. Keep the summary engaging and structured so that anyone can grasp the book's essence without prior knowledge.`;
+    const fullSummary =
+      response.data.candidates?.[0]?.content?.parts?.[0]?.text ||
+      "No summary available";
 
-    const model = genAI.getGenerativeModel({ model: "gemini-pro" });
-    const result = await model.generateContent(prompt);
-    const text = result.response.text(); // Ensure this is correct
-
-    res.json({ summary: text });
+    res.json({ summary: fullSummary });
   } catch (error) {
-    console.error("Error:", error);
-    res.status(500).json({ error: "Failed to generate summary" });
+    console.error("API Error:", error.response?.data || error.message);
+    res.status(500).json({ error: "Failed to get summary from Gemini API" });
   }
 });
 
-app.listen(port, () => {
-  console.log(`Server is running on port ${port}`);
-});
+// Start the server
+const PORT = process.env.PORT || 5000;
+app.listen(PORT, () => console.log(`✅ Server running on port ${PORT}`));
