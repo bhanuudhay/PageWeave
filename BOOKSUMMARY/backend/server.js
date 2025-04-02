@@ -6,25 +6,33 @@ require("dotenv").config();
 const app = express();
 const port = process.env.PORT || 5000;
 
-app.use(cors({ origin: "*" })); // Allow all origins
+app.use(cors({ origin: "*" })); 
 app.use(express.json());
 
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
 
 app.post("/api/summarize", async (req, res) => {
   try {
-    const { bookName, authorName } = req.body;
+    const { book, author } = req.body; 
 
-    const prompt = `Summarize the book '${bookName}' by ${authorName} in a detailed yet simple manner. Explain the main plot, key themes, important characters, and major takeaways in easy-to-understand language. Keep the summary engaging and structured so that anyone can grasp the book's essence without prior knowledge.`;
+    if (!book || !author) {
+      return res.status(400).json({ error: "Missing book or author name" });
+    }
+
+    const prompt = `Summarize the book '${book}' by ${author} in a detailed yet simple manner. Explain the main plot, key themes, important characters, and major takeaways in easy-to-understand language. Keep the summary engaging and structured so that anyone can grasp the book's essence without prior knowledge.`;
 
     const model = genAI.getGenerativeModel({ model: "gemini-pro" });
     const result = await model.generateContent(prompt);
-    const response = await result.response;
-    const text = response.text();
+    
+    if (!result || !result.response) {
+      throw new Error("Invalid API response");
+    }
+
+    const text = result.response.text(); /
 
     res.json({ summary: text });
   } catch (error) {
-    console.error("Error:", error);
+    console.error("Error:", error.message || error);
     res.status(500).json({ error: "Failed to generate summary" });
   }
 });
