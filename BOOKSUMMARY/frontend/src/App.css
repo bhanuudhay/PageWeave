@@ -1,13 +1,15 @@
 body {
   font-family: Arial, sans-serif;
   text-align: center;
-  background: linear-gradient(135deg, #f4f4f4, #e0e0e0);
   display: flex;
   justify-content: center;
   align-items: center;
   min-height: 100vh;
   margin: 0;
-  background: #ede7f6;
+  background-image: url("/backgrondbook.png"); 
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
 }
 
 .book-container {
