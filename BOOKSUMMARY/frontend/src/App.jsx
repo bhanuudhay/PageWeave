@@ -17,7 +17,7 @@ function App() {
 
     try {
       const response = await axios.post(
-        "hhttps://pageweave.onrender.com/summarize",
+        "https://pageweave.onrender.com/summarize",
         {
           book,
           author,
