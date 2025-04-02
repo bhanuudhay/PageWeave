@@ -2,6 +2,9 @@
 
 **PageWeave** is an AI-powered book summary application that generates detailed summaries of books and presents them in an interactive page-flipping format. Built using React.js, Express.js, and Google Gemini API, this project provides a seamless reading experience with a real-time book-flipping effect.
 
+# Successfully Deployed on Netlify
+pageweivee.netlify.app
+
 # 🚀 Features
 
 - 📚 **AI-Powered Book Summaries** – Fetches in-depth summaries of books.
